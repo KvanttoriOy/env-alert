@@ -1,25 +1,45 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import { checkAll, checkOne } from "./commands";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+const onChangeWorkspaceFolders = (e: vscode.WorkspaceFoldersChangeEvent) => {
+  e.added.forEach(checkOne);
+};
+
+const onFileChange = async (uri: vscode.Uri) => {
+  const ws = vscode.workspace.getWorkspaceFolder(uri);
+  if (ws) {
+    await checkOne(ws);
+  }
+};
+
+/**
+ * Called after vs code is loaded.
+ */
 export function activate(context: vscode.ExtensionContext) {
+  const checkAllDisposable = vscode.commands.registerCommand(
+    "env-alert.checkAll",
+    () => checkAll(true)
+  );
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "env-alert" is now active!');
+  // check all workspaces when vs code opens
+  checkAll(false);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('env-alert.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from env-alert!');
-	});
+  // listen to all .env files
+  const watcher = vscode.workspace.createFileSystemWatcher("**/.env*");
+  const watcherDisposable = watcher.onDidChange(onFileChange);
 
-	context.subscriptions.push(disposable);
+  const changeWSDisposable = vscode.workspace.onDidChangeWorkspaceFolders(
+    onChangeWorkspaceFolders
+  );
+
+  context.subscriptions.push(
+    checkAllDisposable,
+    watcherDisposable,
+    watcher,
+    changeWSDisposable
+  );
 }
 
 // This method is called when your extension is deactivated
