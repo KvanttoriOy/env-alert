@@ -2,7 +2,7 @@
   "name": "env-alert",
   "displayName": "env-alert",
   "description": "Alerts you if the .env.example and .env is out of sync",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.74.0"
   },

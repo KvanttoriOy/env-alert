@@ -26,7 +26,6 @@ export function activate(context: vscode.ExtensionContext) {
   // check all workspaces when vs code opens
   checkAll(false);
 
-  // listen to all .env files
   const watcher = vscode.workspace.createFileSystemWatcher("**/.env*");
   const watcherDisposable = watcher.onDidChange(onFileChange);
 

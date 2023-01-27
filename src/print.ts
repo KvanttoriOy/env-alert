@@ -6,7 +6,8 @@ import { Diff } from "./types";
  */
 export const printDiffMessages = (
   ws: vscode.WorkspaceFolder,
-  diff: Diff | null
+  diff: Diff | null,
+  names: { a: string; b: string }
 ) => {
   if (!diff) {
     vscode.window.showInformationMessage(
@@ -18,24 +19,24 @@ export const printDiffMessages = (
   // no differences
   if (diff.a.length + diff.b.length === 0) {
     return vscode.window.showInformationMessage(
-      `${ws.name}: Env files are in sync`
+      `${ws.name} ${names.b} - In sync`
     );
   }
 
   // if there are fields that are only in the .env.example
   if (diff.a.length > 0) {
     vscode.window.showErrorMessage(
-      `${
-        ws.name
-      } - The following keys are missing from your .env: ${diff.a.join(", ")}`
+      `${ws.name} ${names.b} - The following keys are missing: ${diff.a.join(
+        ", "
+      )}`
     );
   }
 
   if (diff.b.length > 0) {
     vscode.window.showWarningMessage(
-      `${ws.name} - The following .env variables are unnecessary: ${diff.b.join(
-        ","
-      )}`
+      `${ws.name} ${
+        names.b
+      } - The following variables are unnecessary: ${diff.b.join(",")}`
     );
   }
 };

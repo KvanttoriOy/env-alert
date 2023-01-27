@@ -1,6 +1,5 @@
 import { parse } from "dotenv";
 import * as vscode from "vscode";
-import { compareKeys } from "./compare";
 import { Diff } from "./types";
 
 const exists = async (path: vscode.Uri): Promise<boolean> => {
@@ -12,7 +11,7 @@ const exists = async (path: vscode.Uri): Promise<boolean> => {
   }
 };
 
-const parseFile = async (
+export const parseFile = async (
   path: vscode.Uri
 ): Promise<Record<string, string> | null> => {
   if (!(await exists(path))) {
@@ -27,15 +26,28 @@ const parseFile = async (
  * Loads the files `a` and `b`, and returns the difference in keys between them.
  */
 export const calculateDiff = async (
-  a: vscode.Uri,
-  b: vscode.Uri
+  a: Record<string, string> | null,
+  b: Record<string, string> | null
 ): Promise<Diff | null> => {
-  const aData = await parseFile(a);
-  const bData = await parseFile(b);
-
-  if (!aData || !bData) {
+  if (!a || !b) {
     return null;
   }
 
-  return compareKeys(aData, bData);
+  const aOnly = Object.keys(a).filter(
+    (key) => !Object.prototype.hasOwnProperty.call(b, key)
+  );
+
+  const bOnly = Object.keys(b).filter(
+    (key) => !Object.prototype.hasOwnProperty.call(a, key)
+  );
+
+  const both = Object.keys(b).filter((key) =>
+    Object.prototype.hasOwnProperty.call(a, key)
+  );
+
+  return {
+    a: aOnly,
+    b: bOnly,
+    both: both,
+  };
 };
