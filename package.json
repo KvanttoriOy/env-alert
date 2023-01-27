@@ -3,6 +3,7 @@
   "displayName": "env-alert",
   "description": "Alerts you if the .env.example and .env is out of sync",
   "version": "0.2.0",
+  "publisher": "kvanttori",
   "engines": {
     "vscode": "^1.74.0"
   },
