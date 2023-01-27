@@ -2,7 +2,7 @@
   "name": "env-alert",
   "displayName": "Env Alert",
   "description": "Helps you keep your .env files updated",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "kvanttori",
   "icon": "images/logo.png",
   "repository": {
@@ -10,7 +10,7 @@
     "url": "https://github.com/KvanttoriOy/env-alert"
   },
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.73.1"
   },
   "categories": [
     "Other"
