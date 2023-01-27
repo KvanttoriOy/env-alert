@@ -8,6 +8,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Release to Visual Studio Code extension marketplace
 
+## [0.2.1] - 2023-01-27
+
+- Update display name
+- Add logo
+
 ## [0.2.0] - 2023-01-27
 
 - Added support for `.env.local`, `.env.development` and `.env.production` files.

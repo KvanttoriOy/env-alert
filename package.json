@@ -1,9 +1,14 @@
 {
   "name": "env-alert",
-  "displayName": "env-alert",
-  "description": "Alerts you if the .env.example and .env is out of sync",
-  "version": "0.2.0",
+  "displayName": "Env Alert",
+  "description": "Helps you keep your .env files updated",
+  "version": "0.2.1",
   "publisher": "kvanttori",
+  "icon": "images/logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KvanttoriOy/env-alert"
+  },
   "engines": {
     "vscode": "^1.74.0"
   },
