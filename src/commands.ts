@@ -2,15 +2,17 @@ import * as vscode from "vscode";
 import { printDiffMessages } from "./print";
 import { calculateDiff, parseFile } from "./diff";
 
-export const checkAll = async (verbose = false) => {
+export const checkAllWorkspaces = async (verbose = false) => {
   if (!vscode.workspace.workspaceFolders) {
     return verbose && vscode.window.showWarningMessage("No workspaces open");
   }
 
-  await Promise.allSettled(vscode.workspace.workspaceFolders.map(checkOne));
+  await Promise.allSettled(
+    vscode.workspace.workspaceFolders.map(checkWorkspace)
+  );
 };
 
-export const checkOne = async (ws: vscode.WorkspaceFolder) => {
+export const checkWorkspace = async (ws: vscode.WorkspaceFolder) => {
   const example = vscode.Uri.joinPath(ws.uri, ".env.example");
   const env = vscode.Uri.joinPath(ws.uri, ".env");
   const envLocal = vscode.Uri.joinPath(ws.uri, ".env.local");
@@ -24,7 +26,7 @@ export const checkOne = async (ws: vscode.WorkspaceFolder) => {
   const envProdData = await parseFile(envProd);
 
   if (!exampleData) {
-    return vscode.window.showWarningMessage(
+    return vscode.window.showErrorMessage(
       `${ws.name} - No .env.example file found`
     );
   }

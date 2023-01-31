@@ -1,36 +1,29 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { checkAll, checkOne } from "./commands";
-
-const onChangeWorkspaceFolders = (e: vscode.WorkspaceFoldersChangeEvent) => {
-  e.added.forEach(checkOne);
-};
-
-const onFileChange = async (uri: vscode.Uri) => {
-  const ws = vscode.workspace.getWorkspaceFolder(uri);
-  if (ws) {
-    await checkOne(ws);
-  }
-};
+import { checkAllWorkspaces, checkWorkspace } from "./commands";
 
 /**
  * Called after vs code is loaded.
  */
 export function activate(context: vscode.ExtensionContext) {
+  checkAllWorkspaces(false);
+
   const checkAllDisposable = vscode.commands.registerCommand(
     "env-alert.checkAll",
-    () => checkAll(true)
+    () => checkAllWorkspaces(true)
   );
 
-  // check all workspaces when vs code opens
-  checkAll(false);
-
   const watcher = vscode.workspace.createFileSystemWatcher("**/.env*");
-  const watcherDisposable = watcher.onDidChange(onFileChange);
+  const watcherDisposable = watcher.onDidChange(async (uri) => {
+    const ws = vscode.workspace.getWorkspaceFolder(uri);
+    if (ws) {
+      await checkWorkspace(ws);
+    }
+  });
 
-  const changeWSDisposable = vscode.workspace.onDidChangeWorkspaceFolders(
-    onChangeWorkspaceFolders
+  const changeWSDisposable = vscode.workspace.onDidChangeWorkspaceFolders((e) =>
+    e.added.forEach((ws) => checkWorkspace(ws))
   );
 
   context.subscriptions.push(
