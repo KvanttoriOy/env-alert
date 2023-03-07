@@ -1,23 +1,31 @@
 import * as vscode from "vscode";
 import { printDiffMessages } from "./print";
 import { calculateDiff, parseFile } from "./diff";
+import { dirname, relative, resolve } from "path";
 
-export const checkAllWorkspaces = async (verbose = false) => {
-  if (!vscode.workspace.workspaceFolders) {
-    return verbose && vscode.window.showWarningMessage("No workspaces open");
-  }
+export const checkAllWorkspaces = async () => {
+  const folders = (await vscode.workspace.findFiles("**/.env*")).map((uri) =>
+    uri.with({ path: dirname(uri.path) })
+  );
+
+  const uniqueFolders = new Set(folders.map((f) => f.path));
 
   await Promise.allSettled(
-    vscode.workspace.workspaceFolders.map(checkWorkspace)
+    [...uniqueFolders].map((path) => checkFolder(vscode.Uri.file(path)))
   );
 };
 
-export const checkWorkspace = async (ws: vscode.WorkspaceFolder) => {
-  const example = vscode.Uri.joinPath(ws.uri, ".env.example");
-  const env = vscode.Uri.joinPath(ws.uri, ".env");
-  const envLocal = vscode.Uri.joinPath(ws.uri, ".env.local");
-  const envDev = vscode.Uri.joinPath(ws.uri, ".env.development");
-  const envProd = vscode.Uri.joinPath(ws.uri, ".env.production");
+export const checkFolder = async (uri: vscode.Uri) => {
+  const ws = vscode.workspace.getWorkspaceFolder(uri);
+  const rel = relative(ws?.uri.path!, uri.path);
+
+  const wsName = (rel === "" ? ws?.name : `${ws?.name}/${rel}`) ?? uri.fsPath;
+
+  const example = vscode.Uri.joinPath(uri, ".env.example");
+  const env = vscode.Uri.joinPath(uri, ".env");
+  const envLocal = vscode.Uri.joinPath(uri, ".env.local");
+  const envDev = vscode.Uri.joinPath(uri, ".env.development");
+  const envProd = vscode.Uri.joinPath(uri, ".env.production");
 
   const exampleData = await parseFile(example);
   const envData = await parseFile(env);
@@ -27,31 +35,27 @@ export const checkWorkspace = async (ws: vscode.WorkspaceFolder) => {
 
   if (!exampleData) {
     return vscode.window.showErrorMessage(
-      `${ws.name} - No .env.example file found`
+      `${wsName} - No .env.example file found`
     );
   }
 
   if (!envData && !envLocalData && !envDevData && !envProdData) {
-    return vscode.window.showWarningMessage(`${ws.name} - No .env file found`);
+    return vscode.window.showWarningMessage(`${wsName} - No .env file found`);
   }
 
-  if (envData) {
-    const diff = await calculateDiff(exampleData, envData);
-    printDiffMessages(ws, diff, { a: ".env.example", b: ".env" });
-  }
+  const filesToCheck = [
+    [envData, ".env"],
+    [envLocalData, ".env.local"],
+    [envDevData, ".env.development"],
+    [envProdData, ".env.production"],
+  ] as const;
 
-  if (envLocalData) {
-    const diff = await calculateDiff(exampleData, envLocalData);
-    printDiffMessages(ws, diff, { a: ".env.example", b: ".env.local" });
-  }
+  for (const [data, fileName] of filesToCheck) {
+    if (!data) {
+      continue;
+    }
 
-  if (envDevData) {
-    const diff = await calculateDiff(exampleData, envDevData);
-    printDiffMessages(ws, diff, { a: ".env.example", b: ".env.development" });
-  }
-
-  if (envProdData) {
-    const diff = await calculateDiff(exampleData, envProdData);
-    printDiffMessages(ws, diff, { a: ".env.example", b: ".env.production" });
+    const diff = await calculateDiff(exampleData, data);
+    printDiffMessages(wsName, diff, { a: ".env.example", b: fileName });
   }
 };
