@@ -2,6 +2,10 @@
 
 All notable changes to the "env-alert" extension will be documented in this file.
 
+## [0.3.1] - 2023-06-30
+
+- Ignore changes to files ignored by .gitignore
+
 ## [0.2.2] - 2023-01-27
 
 - Changed VS Code version requirement to `^1.73.1`
