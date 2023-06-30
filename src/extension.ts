@@ -2,7 +2,7 @@ import { dirname } from "path";
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { checkAllWorkspaces, checkFolder } from "./commands";
+import { checkAllWorkspaces, checkFolder } from "./utils/commands";
 
 /**
  * Called after vs code is loaded.
