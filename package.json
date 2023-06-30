@@ -2,7 +2,7 @@
   "name": "env-alert",
   "displayName": "Env Alert",
   "description": "Helps you keep your .env files updated",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "kvanttori",
   "icon": "images/logo.png",
   "repository": {
@@ -57,6 +57,7 @@
     "webpack-cli": "^5.0.0"
   },
   "dependencies": {
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "simple-git": "^3.19.1"
   }
 }

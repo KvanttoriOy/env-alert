@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import { printDiffMessages } from "./print";
 import { calculateDiff, parseFile } from "./diff";
-import { dirname, relative, resolve } from "path";
+import { dirname, relative } from "path";
+import { folderIsIgnored } from "./ignore";
 
 export const checkAllWorkspaces = async () => {
   const folders = (await vscode.workspace.findFiles("**/.env*")).map((uri) =>
@@ -16,6 +17,11 @@ export const checkAllWorkspaces = async () => {
 };
 
 export const checkFolder = async (uri: vscode.Uri) => {
+  if (await folderIsIgnored(uri)) {
+    console.log(`folder '${uri.fsPath}' is in .gitignore, skipping...`);
+    return;
+  }
+
   const ws = vscode.workspace.getWorkspaceFolder(uri);
   const rel = relative(ws?.uri.path!, uri.path);
 
